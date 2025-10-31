@@ -1,0 +1,22 @@
+{
+  "name": "ai-geography-quiz",
+  "version": "1.0.0",
+  "description": "AI-powered interactive geography quiz using Google Maps and Gemini AI",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000"
+  },
+  "keywords": [
+    "geography",
+    "quiz",
+    "ai",
+    "google-maps",
+    "gemini"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "openai": "^6.7.0"
+  }
+}

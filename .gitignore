@@ -1,0 +1,4 @@
+groq_chat_completion.js
+node_modules/
+.env
+*.log

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interactive Geography Quiz</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <div id="map"></div>
+  <div id="quiz-header" class="card hidden">
+    <h3 id="quiz-title">Quiz Topic</h3>
+  </div>
+  
+  <div id="scoreboard" class="card hidden">
+    <h2>Score</h2>
+    <p>Correct: <span id="correct-score">0</span></p>
+    <p>Incorrect: <span id="incorrect-score">0</span></p>
+    <button id="complete-quiz" class="button button-primary">Complete Quiz</button>
+  </div>
+
+  <div id="setup-modal" class="modal-container">
+      <div class="modal-content card">
+          <h3>Quiz Setup</h3>
+          <p>Enter your API keys and select options to start the AI-powered quiz using Groq's llama-3.1-8b-instant model.</p>
+          <div class="form-group">
+              <label for="groq-api-key">Groq API Key</label>
+              <input type="text" id="groq-api-key" class="form-select" placeholder="Enter your Groq API key" required>
+          </div>
+          <div class="form-group">
+              <label for="api-key-input">Google Maps API Key</label>
+              <input type="text" id="api-key-input" class="form-select" placeholder="Enter your Google Maps API key" required>
+          </div>
+          <div class="form-group">
+              <label>Class Level</label>
+              <div class="radio-group">
+                  <label class="radio-label">
+                      <input type="radio" name="class-level" value="class-3-7" checked>
+                      Class 3 to 7
+                  </label>
+                  <label class="radio-label">
+                      <input type="radio" name="class-level" value="class-8-10">
+                      Class 8 to 10
+                  </label>
+                  <label class="radio-label">
+                      <input type="radio" name="class-level" value="class-11-12">
+                      Class 11 to 12
+                  </label>
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="country-select">Country</label>
+              <select id="country-select" class="form-select"></select>
+          </div>
+          <div class="form-group">
+              <label for="topic-select">Topic (AI Generated)</label>
+              <select id="topic-select" class="form-select" disabled>
+                  <option value="">Select country first to generate topics</option>
+              </select>
+              <button id="generate-topics" class="button" style="margin-top: 0.5rem;" disabled>Generate Topics with AI</button>
+          </div>
+          <div class="modal-actions">
+              <button id="start-quiz" class="button button-primary" disabled>Start Quiz</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="input-modal" class="modal-container hidden">
+    <div class="modal-content card">
+      <h3>Identify the Location</h3>
+      <p>Enter the name of the selected location:</p>
+      <p id="timer-container">Time remaining: <span id="timer-display">30</span>s</p>
+      <input type="text" id="item-name-input" placeholder="e.g., Hoover Dam">
+      <div class="modal-actions">
+        <button id="submit-answer" class="button button-primary">Submit</button>
+        <button id="cancel-answer" class="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="summary-modal" class="modal-container hidden">
+    <div class="modal-content card">
+      <h3>Quiz Summary</h3>
+      <h4>Incorrect Answers:</h4>
+      <ul id="summary-list"></ul>
+      <div class="modal-actions">
+        <button id="restart-quiz" class="button button-primary">Restart Quiz</button>
+        <button id="close-summary" class="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.initGoogleMaps = function(apiKey) {
+      (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t.toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key: apiKey,
+        v: "weekly"
+      });
+    };
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
