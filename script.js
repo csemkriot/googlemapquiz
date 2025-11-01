@@ -85,10 +85,6 @@ async function generateTopics() {
     const selectedClassLevel = document.querySelector('input[name="class-level"]:checked').value;
     groqApiKey = groqApiKeyInput.value.trim();
     
-    console.log('API Key:', groqApiKey ? 'Present' : 'Missing');
-    console.log('Country:', selectedCountry);
-    console.log('Class Level:', selectedClassLevel);
-    
     if (!selectedCountry || !groqApiKey) {
         showError('Please select a country and enter Groq API key first.');
         return;
@@ -99,13 +95,22 @@ async function generateTopics() {
     
     try {
         const classLevelText = selectedClassLevel.replace('-', ' ').replace('class', 'Class');
-        const prompt = `Give 5 topics for a Map based quiz application for ${classLevelText} on ${selectedCountry} Maps. The topics are related to some places to be spotted so that students can click on that spot and enter place name. Ensure you give only the topic names separated with commas and not a single extra line.`;
-
-        console.log('Sending prompt:', prompt);
-        const response = await callGroqAPI(prompt);
-
         
-        // Parse comma-separated topics instead of JSON
+        // Add complexity guidance
+        let complexityGuide = '';
+        if (selectedClassLevel === 'class-3-7') {
+            complexityGuide = 'Topics should be simple and focus on major, easily recognizable features like Famous Monuments, Major Rivers, State Capitals, National Parks, Famous Dams.';
+        } else if (selectedClassLevel === 'class-8-10') {
+            complexityGuide = 'Topics should be moderately challenging like Mountain Ranges, Industrial Regions, Historical Battlefields, Wildlife Sanctuaries, Important Ports.';
+        } else {
+            complexityGuide = 'Topics should be challenging and detailed like Geographical Passes, Tributary Systems, Archaeological Sites, Mineral Belts, Strategic Locations.';
+        }
+        
+        const prompt = `Generate 5 map-based quiz topics for ${classLevelText} students studying ${selectedCountry}. ${complexityGuide}
+
+Return ONLY the topic names separated by commas, nothing else. Example format: Topic 1, Topic 2, Topic 3, Topic 4, Topic 5`;
+
+        const response = await callGroqAPI(prompt);
         const topics = response.trim().split(',').map(topic => topic.trim());
         
         populateTopicsDropdown(topics);
@@ -137,12 +142,35 @@ async function generateQuizItems() {
     const selectedClassLevel = document.querySelector('input[name="class-level"]:checked').value;
     
     const classLevelText = selectedClassLevel.replace('-', ' ').replace('class', 'Class');
-    const prompt = `Generate 5 specific locations in ${selectedCountry} related to "${selectedTopic}" suitable for ${classLevelText} students. For each location provide name, latitude, longitude, and brief explanation. Return ONLY a valid JSON array without any markdown formatting or extra text:`;
+    
+    // Add difficulty guidelines based on class level
+    let difficultyGuide = '';
+    if (selectedClassLevel === 'class-3-7') {
+        difficultyGuide = 'Focus on well-known, major landmarks and famous locations that young students would recognize. Use simple, clear names. Examples: famous monuments, major cities, well-known rivers, popular tourist destinations.';
+    } else if (selectedClassLevel === 'class-8-10') {
+        difficultyGuide = 'Include moderately challenging locations including state capitals, important rivers, historical sites, regional landmarks, and significant geographical features. Balance between famous and less common locations.';
+    } else if (selectedClassLevel === 'class-11-12') {
+        difficultyGuide = 'Include challenging locations such as lesser-known geographical features, specific mountain passes, tributaries, archaeological sites, industrial regions, and locations requiring detailed geographical knowledge.';
+    }
+    
+    const prompt = `Generate 5 specific locations in ${selectedCountry} related to "${selectedTopic}" suitable for ${classLevelText} students. 
+
+${difficultyGuide}
+
+For each location provide:
+- name: exact name of the location
+- latitude: decimal latitude coordinate
+- longitude: decimal longitude coordinate
+- description: brief 1-2 sentence explanation suitable for ${classLevelText}
+
+Return ONLY a valid JSON array in this exact format:
+[{"name": "Location Name", "latitude": 12.34, "longitude": 56.78, "description": "Brief explanation"}]
+
+No markdown formatting, no extra text, just the JSON array.`;
 
     try {
         const response = await callGroqAPI(prompt);
 
-        
         // Clean the response by removing markdown code blocks
         let cleanResponse = response.trim();
         if (cleanResponse.startsWith('```json')) {
@@ -152,6 +180,7 @@ async function generateQuizItems() {
         }
         
         const items = JSON.parse(cleanResponse.trim());
+        
         // Validate and transform items
         const validItems = items.filter(item => {
             const hasName = item.name || item.Name;
